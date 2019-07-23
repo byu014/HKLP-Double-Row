@@ -119,9 +119,10 @@ class FakePlateGenerator():
         #self.character_position_x_list = [x.__sub__(10) for x in self.character_position_x_list]
 
         #makes sure first digit does not start with a 0
+        spacing = random.randint(145,155)#150
         self.character_position_x_listBotRest.clear()
         for j in range(1,4):
-            self.character_position_x_listBotRest.append(self.character_position_x_listBotStart[i] + j*150)
+            self.character_position_x_listBotRest.append(self.character_position_x_listBotStart[i] + j*spacing)
         while True:
             character, img =  self.get_radom_sample(self.numbers)
             if int(character) != 0:
@@ -156,9 +157,11 @@ if __name__ == "__main__":
         fake_plate_generator.numbers = fake_plate_generator.load_image(number_dir[font], character_y_size)
         fake_plate_generator.letters = fake_plate_generator.load_image(letter_dir[font], character_y_size)
         plate, plate_name = fake_plate_generator.generate_one_plate()
+        plate = underline(plate)
         plate = jittering_color(plate)
         plate = add_noise(plate)
         plate = jittering_blur(plate)
         plate = jittering_scale(plate)
+        plate = perspectiveTransform(plate)
 
         save_random_img(output_dir, plate)
