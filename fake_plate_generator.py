@@ -23,11 +23,11 @@ rank_blur = args.rank_blur
 brightness = args.brightness
 motion_blur = args.motion_blur
 fake_resource_dir  = sys.path[0] + "/fake_resource/" 
-output_dir = sys.path[0] + "/test_plate/"
+#output_dir = sys.path[0] + "/test_plate/"
 number_dir = [fake_resource_dir + "/numbers/",fake_resource_dir + "/numbers1/" ]
 letter_dir = [fake_resource_dir + "/letters/" ,fake_resource_dir + "/letters1/"]
 plate_dir = [fake_resource_dir + "/plate_background_use/", fake_resource_dir + "/plate_background_use1/"]
-screw_dir = [fake_resource_dir + "/screw/",fake_resource_dir + "/screw1/"]
+screw_dir = [fake_resource_dir + "/screw/", fake_resource_dir + "/screw1/"]
 
 
 # character_y_size = 113
@@ -159,7 +159,7 @@ class FakePlateGenerator():
 
         #makes sure first digit does not start with a 0
         #spacing = random.randint(145,155)#150
-        self.character_position_x_listBotRest.clear()
+        self.character_position_x_listBotRest = []#clear()
         for j in range(1,4):
             self.character_position_x_listBotRest.append(self.character_position_x_listBotStart[i] + j*150)
         while True:
@@ -202,6 +202,8 @@ if __name__ == "__main__":
     numImgs = args.num_imgs
     fo = codecs.open(output_dir + 'labels.txt', "w", encoding='utf-8')
     for i in range(0, numImgs):
+        if i%100==0:
+            print(i)
         fake_plate_generator = FakePlateGenerator( img_size)
         plate, plate_name, plate_chars = fake_plate_generator.generate_one_plate()
         plate = underline(plate)
@@ -214,5 +216,6 @@ if __name__ == "__main__":
         plate = random_rank_blur(plate,rank_blur)
         plate = random_motion_blur(plate,motion_blur)
         plate = random_brightness(plate, brightness)
+
         file_name = save_random_img(output_dir,plate_chars.upper(), plate)
         write_to_txt(fo,file_name,plate_chars)
