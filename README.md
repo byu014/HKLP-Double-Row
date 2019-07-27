@@ -20,3 +20,9 @@ python fake_plate_generator.py -id `pwd`/output/ -ni 100 -r 3 -g 4 -n 5
 #### Images are stored in the folder test_plate
 #### Background images are randomly selected from the folder "/fake_resources/plate_background_use"
 #### Numbers and Lettters are randomly selected from the folder "/fake_resources/numbers" and "/fake_resources/numbers respectively"
+
+
+### Sample Command to Generate Images for OCR training:
+```bash
+python fake_plate_generator_for_ocr_training.py -id /Users/fei/tmp/fakeplate/double_row/ -ni 100 -r 9 -g 10 -rb 7 -n 5 
+``` 
