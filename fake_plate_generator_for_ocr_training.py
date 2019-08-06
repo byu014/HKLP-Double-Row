@@ -192,10 +192,10 @@ def write_to_txt(fo,img_name1, img_name2, plate_characters):
     plate_label2 = '|' + '|'.join(plate_characters[2:]) + '|'
 
     line1 = img_name1 + ';' + plate_label1.upper() + '\n'
-    line2 = img_name1 + ';' + plate_label2.upper() + '\n'
+    line2 = img_name2 + ';' + plate_label2.upper() + '\n'
 
-    line1.encode('utf8')
-    line2.encode('utf8')
+    print(line1.encode('utf8'))
+    print(line2.encode('utf8'))
 
     fo.write("%s" % line1)
     fo.write("%s" % line2)
