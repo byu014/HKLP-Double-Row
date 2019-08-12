@@ -9,7 +9,7 @@ import uuid
 from PIL import Image, ImageFilter, ImageEnhance
 
 def resample(img, resizeRange):
-    resizer = random.randint(6, resizeRange)
+    resizer = random.randint(4, resizeRange)
     if resizer > 0:
         h,w = img.shape[0:2]
         img = cv2.resize(img,(img.shape[1]//resizer,img.shape[0]//resizer))
