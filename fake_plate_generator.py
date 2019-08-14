@@ -24,8 +24,8 @@ brightness = args.brightness
 motion_blur = args.motion_blur
 fake_resource_dir  = sys.path[0] + "/fake_resource/" 
 #output_dir = sys.path[0] + "/test_plate/"
-number_dir = [fake_resource_dir + "/numbers/",fake_resource_dir + "/numbers1/" ]
-letter_dir = [fake_resource_dir + "/letters/" ,fake_resource_dir + "/letters1/"]
+number_dir = [fake_resource_dir + "/numbers/",fake_resource_dir + "/numbers1/", fake_resource_dir + "/numbers2/"]
+letter_dir = [fake_resource_dir + "/letters/" ,fake_resource_dir + "/letters1/", fake_resource_dir + "letters2/"]
 plate_dir = [fake_resource_dir + "/plate_background_use/", fake_resource_dir + "/plate_background_use1/"]
 screw_dir = [fake_resource_dir + "/screw/", fake_resource_dir + "/screw1/"]
 
@@ -132,6 +132,7 @@ class FakePlateGenerator():
         ret, mask = cv2.threshold(a_channel, 100, 255, cv2.THRESH_BINARY)
 
         overlay_img(character, plate, mask, start_x, start_y)
+        return start_x, start_y
 
     def generate_one_plate(self):
         #self.character_position_x_list = self.character_position_x_listOG
@@ -145,13 +146,13 @@ class FakePlateGenerator():
         #i = (len(self.character_position_x_list) - num)//2 - 1
         
         i = 6 - num
-        character, img = self.get_radom_sample(self.letters)
-        self.add_character_to_plateTop(img, plate_img, self.character_position_x_listTop[0])
+        character, img1 = self.get_radom_sample(self.letters)
+        start_x_Top1,start_y_Top1 = self.add_character_to_plateTop(img1, plate_img, self.character_position_x_listTop[0])
         plate_name += "%s"%(character,)
         plate_chars += character
 
-        character, img = self.get_radom_sample(self.letters)
-        self.add_character_to_plateTop(img, plate_img, self.character_position_x_listTop[1])
+        character, img2 = self.get_radom_sample(self.letters)
+        start_x_Top2,start_y_Top2 = self.add_character_to_plateTop(img2, plate_img, self.character_position_x_listTop[1])
         plate_name += "%s"%(character,)
         plate_chars += character
 
@@ -183,6 +184,11 @@ class FakePlateGenerator():
         plate_img = cv2.cvtColor(plate_img, cv2.COLOR_BGRA2BGR)
   
         #转换到目标大小
+        pt1 = (start_x_Top1,start_y_Top1)
+        pt2 = (start_x_Top2 + img2.shape[1],20 + 140)
+        cv2.rectangle(plate_img, pt1,pt2, (255,0,0), 5)
+        cv2.imshow(' ', plate_img)
+        cv2.waitKey(0)
         plate_img = cv2.resize(plate_img, self.dst_size, interpolation = cv2.INTER_AREA)
 
         return plate_img, plate_name, plate_chars
