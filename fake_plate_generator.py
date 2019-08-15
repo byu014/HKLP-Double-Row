@@ -218,6 +218,7 @@ class FakePlateGenerator():
         pts2 = (int(pt2[0] * scalex)+3,int(pt2[1] * scaley)+3)
         pts3 = (int(pt3[0] * scalex)-3, int(pt3[1] * scaley)-3)
         pts4 = (int(pt4[0] * scalex)+3, int(pt4[1] * scaley)+3)
+
         # cv2.rectangle(plate_img, pts1,pts2, (255,0,0), 4)
         # cv2.rectangle(plate_img, pts3,pts4, (0,0,255),4)
         # cv2.imshow(' ', plate_img)
@@ -250,7 +251,7 @@ if __name__ == "__main__":
     # fake_resource_dir  = sys.path[0] + "/fake_resource/" 
     # output_dir = sys.path[0] + "/test_plate/"
     json_data = {}
-    json_file = sys.path[0]+"/ocr_label.json"
+    json_file = output_dir + "/ocr_label.json"
     img_size = (240, 180)#80, 60
 
     reset_folder(output_dir)
