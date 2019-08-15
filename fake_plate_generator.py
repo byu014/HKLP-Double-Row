@@ -1,4 +1,5 @@
 #coding=utf-8
+from __future__ import division, print_function
 import itertools
 import math
 import os
@@ -11,6 +12,7 @@ import codecs
 from img_utils import *
 from jittering_methods import *
 from parse_args import parse_args
+import json
 
 args = parse_args()
 
@@ -48,7 +50,7 @@ class FakePlateGenerator():
         self.numbers_and_letters = dict(self.numbers, **self.letters)
 
         #we only use blue plate here
-        self.plates = self.load_image(plate_dir[color], plate_y_size)
+        self.plates,self.plate_x_size = self.load_plate_image(plate_dir[color], plate_y_size)
         self.screws = self.load_screws(screw_dir[color],plate_y_size)
     
         for i in self.plates.keys():
@@ -84,6 +86,23 @@ class FakePlateGenerator():
             img_list[filename[:-4]] = img_scaled
 
         return img_list
+    
+    def load_plate_image(self, path, dst_y_size):
+        img_list = {}
+        current_path = sys.path[0]
+
+        listfile = os.listdir(path)     
+
+        for filename in listfile:
+            img = cv2.imread(path + filename, -1)
+            
+            height, width = img.shape[:2]
+            x_size = int(width*(dst_y_size/float(height)))+50
+            img_scaled = cv2.resize(img, (x_size, dst_y_size), interpolation = cv2.INTER_CUBIC)
+            
+            img_list[filename[:-4]] = img_scaled
+
+        return img_list, x_size
     def load_screws(self, path, dst_y_size):
         img_list = {}
         current_path = sys.path[0]
@@ -108,6 +127,7 @@ class FakePlateGenerator():
         ret, mask = cv2.threshold(a_channel, 100, 255, cv2.THRESH_BINARY)
 
         overlay_img(character, plate, mask, start_x, start_y)
+        return start_x, start_y
    
     def add_screws_to_plate(self, character, plate, x):
         h_plate, w_plate = plate.shape[:2]
@@ -160,20 +180,21 @@ class FakePlateGenerator():
 
         #makes sure first digit does not start with a 0
         #spacing = random.randint(145,155)#150
+        start_xy_Bottom = []
         self.character_position_x_listBotRest = []#clear()
         for j in range(1,4):
             self.character_position_x_listBotRest.append(self.character_position_x_listBotStart[i] + j*150)
         while True:
-            character, img =  self.get_radom_sample(self.numbers)
+            character, img3 =  self.get_radom_sample(self.numbers)
             if int(character) != 0:
-                self.add_character_to_plateBottom(img, plate_img, self.character_position_x_listBotStart[i])
+                start_xy_Bottom.append(self.add_character_to_plateBottom(img3, plate_img, self.character_position_x_listBotStart[i]))
                 plate_name += character
                 plate_chars += character
                 break
 
         for j in range(4,num+1):
-            character, img =  self.get_radom_sample(self.numbers)
-            self.add_character_to_plateBottom(img, plate_img, self.character_position_x_listBotRest[j-4])
+            character, img3 =  self.get_radom_sample(self.numbers)
+            start_xy_Bottom.append(self.add_character_to_plateBottom(img3, plate_img, self.character_position_x_listBotRest[j-4]))
             plate_name += character
             plate_chars += character
         screw, img = self.get_radom_sample(self.screws)
@@ -186,22 +207,50 @@ class FakePlateGenerator():
         #转换到目标大小
         pt1 = (start_x_Top1,start_y_Top1)
         pt2 = (start_x_Top2 + img2.shape[1],20 + 140)
-        cv2.rectangle(plate_img, pt1,pt2, (255,0,0), 5)
-        cv2.imshow(' ', plate_img)
-        cv2.waitKey(0)
+        pt3 = (start_xy_Bottom[0][0], start_xy_Bottom[0][1])
+        pt4 = (start_xy_Bottom[num+1 - 4][0] + img3.shape[1], start_xy_Bottom[num+1 - 4][1] + character_y_size)
         plate_img = cv2.resize(plate_img, self.dst_size, interpolation = cv2.INTER_AREA)
+        
+        scalex = self.dst_size[0]/self.plate_x_size
+        scaley = self.dst_size[1]/plate_y_size
 
-        return plate_img, plate_name, plate_chars
+        pts1 = (int(pt1[0] * scalex)-3,int(pt1[1] * scaley)-3) 
+        pts2 = (int(pt2[0] * scalex)+3,int(pt2[1] * scaley)+3)
+        pts3 = (int(pt3[0] * scalex)-3, int(pt3[1] * scaley)-3)
+        pts4 = (int(pt4[0] * scalex)+3, int(pt4[1] * scaley)+3)
+        # cv2.rectangle(plate_img, pts1,pts2, (255,0,0), 4)
+        # cv2.rectangle(plate_img, pts3,pts4, (0,0,255),4)
+        # cv2.imshow(' ', plate_img)
+        # cv2.waitKey(0)
+        box = ((pts1[0],pts1[1], pts2[0] - pts1[0], pts2[1] - pts1[1]),(pts3[0],pts3[1],pts4[0]-pts3[0],pts4[1]-pts3[1]))
+        return plate_img, plate_name, plate_chars,box
 
 def write_to_txt(fo,img_name, plate_characters):
     plate_label = '|' + '|'.join(plate_characters) + '|'
     line = img_name + ';' + plate_label.upper() + '\n'
-    line.encode('utf8')
+    print(line.encode('utf8'))
     fo.write("%s" % line)
+
+def json_generator(json_file, fname, plate_chars,box,json_data):
+    i=0
+    plate_anno =[]
+    plate_anno.append(
+        {"box": box[0],
+        "text": plate_chars[0:2],}
+    )
+    plate_anno.append(
+        {"box": box[1],
+        "text": plate_chars[2:],}
+    )
+    if fname not in json_data:
+        json_data[fname.split('/')[7]] = plate_anno
+
 
 if __name__ == "__main__":
     # fake_resource_dir  = sys.path[0] + "/fake_resource/" 
     # output_dir = sys.path[0] + "/test_plate/"
+    json_data = {}
+    json_file = sys.path[0]+"/ocr_label.json"
     img_size = (240, 180)#80, 60
 
     reset_folder(output_dir)
@@ -211,7 +260,7 @@ if __name__ == "__main__":
         if i%100==0:
             print(i)
         fake_plate_generator = FakePlateGenerator( img_size)
-        plate, plate_name, plate_chars = fake_plate_generator.generate_one_plate()
+        plate, plate_name, plate_chars,box = fake_plate_generator.generate_one_plate()
         plate = underline(plate)
         plate = jittering_color(plate)
         plate = add_noise(plate,noise_range)
@@ -225,3 +274,6 @@ if __name__ == "__main__":
 
         file_name = save_random_img(output_dir,plate_chars.upper(), plate)
         write_to_txt(fo,file_name,plate_chars)
+        json_generator(json_file, file_name,plate_chars.upper(), box,json_data)
+    with codecs.open(json_file, 'w') as f:
+            f.write(json.dumps(json_data,indent=4))
