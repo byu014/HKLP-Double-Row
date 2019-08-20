@@ -102,7 +102,7 @@ class FakePlateGenerator():
 
         start_x = x - int(w_character/2)
         # start_y = int((h_plate - h_character)/2)
-        start_y = h_plate//2
+        start_y = h_plate//2 + 10
 
         a_channel = cv2.split(character)[3]
         ret, mask = cv2.threshold(a_channel, 100, 255, cv2.THRESH_BINARY)
@@ -222,7 +222,7 @@ if __name__ == "__main__":
             print(i)
         fake_plate_generator = FakePlateGenerator( img_size)
         plate, plate_name, plate_chars = fake_plate_generator.generate_one_plate()
-        plate = underline(plate)
+        # plate = underline(plate)
         plate = jittering_color(plate)
         plate = add_noise(plate,noise_range)
         plate = jittering_blur(plate,gaussian_range)
