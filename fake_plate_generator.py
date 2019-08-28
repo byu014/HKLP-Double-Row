@@ -26,8 +26,8 @@ brightness = args.brightness
 motion_blur = args.motion_blur
 fake_resource_dir  = sys.path[0] + "/fake_resource/" 
 #output_dir = sys.path[0] + "/test_plate/"
-number_dir = [fake_resource_dir + "/numbers/",fake_resource_dir + "/numbers1/", fake_resource_dir + "/numbers2/"]
-letter_dir = [fake_resource_dir + "/letters/" ,fake_resource_dir + "/letters1/", fake_resource_dir + "letters2/"]
+number_dir = [fake_resource_dir + "/numbers/",fake_resource_dir + "/numbers1/", fake_resource_dir + "/numbers2/", fake_resource_dir + "/numbers3/"]
+letter_dir = [fake_resource_dir + "/letters/" ,fake_resource_dir + "/letters1/", fake_resource_dir + "letters2/", fake_resource_dir + "letters3/"]
 plate_dir = [fake_resource_dir + "/plate_background_use/", fake_resource_dir + "/plate_background_use1/"]
 screw_dir = [fake_resource_dir + "/screw/", fake_resource_dir + "/screw1/"]
 
@@ -38,7 +38,7 @@ plate_y_size = 328
 
 class FakePlateGenerator():
     def __init__(self, plate_size):
-        font = random.randint(0,1)
+        font = random.randint(0,3)
         color = random.randint(0,1)
         self.dst_size = plate_size
 
