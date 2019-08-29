@@ -71,7 +71,7 @@ def random_rank_blur(img, rank_blur_range):
 def random_motion_blur(img, motion_blur_range):
     img_array = img
     angle = np.random.randint(0, 360)
-    motion_blur_range = np.random.randint(0, motion_blur_range)
+    motion_blur_range = np.random.randint(1, motion_blur_range)
     M = cv2.getRotationMatrix2D((motion_blur_range / 2, motion_blur_range / 2), angle, 1)
     motion_blur_kernel = np.diag(np.ones(motion_blur_range))
     motion_blur_kernel = cv2.warpAffine(motion_blur_kernel, M, (motion_blur_range, motion_blur_range))
